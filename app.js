@@ -1,17 +1,27 @@
 const express = require('express')
+const path = require('path')
 const app = express()
-const port = 3000
+const PORT = 3000 || process.env.PORT
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-
+//establish socket connection
 io.on('connection', (socket) => {
     console.log('a user connected');
+
+    //distribute any user messages to all connected clients
+    socket.on('chat message', (msg) => {
+      io.emit('message', msg);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('a user has disconnected')
+    })
   });
   
   
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`)
+http.listen(PORT, () => {
+  console.log(`Server listening at http://localhost:${PORT}`)
 })

@@ -57,6 +57,7 @@ body {
 }
 #chat-box {
     grid-area: cb;
+    overflow-y: scroll;
 }
 
 #active-user-list {
@@ -67,6 +68,27 @@ body {
     grid-area: c;
     text-align: center;
     padding: 0;
+}
+
+
+#chat-box-messages .message {
+	padding: 10px;
+	margin-bottom: 15px;
+	background-color: powderblue;
+	border-radius: 5px;
+	overflow-wrap: break-word;
+}
+
+#chat-box-messages .message .meta {
+	font-size: 15px;
+	font-weight: bold;
+	color: var(--dark-color-b);
+	opacity: 0.7;
+	margin-bottom: 7px;
+}
+
+#chat-box-messages .message .meta span {
+	color: #777;
 }
 
 form {

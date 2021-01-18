@@ -3,13 +3,12 @@ const socket = io()
 const form = document.getElementById('form');
 const input = document.getElementById('message');
 const messages = document.getElementById('chat-box-messages')
+const chatBox = document.getElementById('chat-box')
 
-
+//Pull Message from Server
 socket.on('message', message => {
-    let newMsg = document.createElement('li')
-    newMsg.textContent = message
-    messages.appendChild(newMsg)
-    messages.scrollTop = messages.scrollHeight
+    outputMessage(message)
+    chatBox.scrollTop = chatBox.scrollHeight
 })
 
 
@@ -23,5 +22,24 @@ form.addEventListener('submit', (e) => {
   });
 
 
+  //function to get current user time hhmm
+function timeNow(i) {
+    i.value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
 
 
+//Formatting new message and output to dom
+function outputMessage(message) {
+  const newMsg = document.createElement('li')
+  newMsg.classList.add('message');
+//   const p = document.createElement('p');
+//   p.classList.add('meta');
+//   p.innerText = message.username;
+//   p.innerHTML += `<span>${message.time}</span>`;
+//   newMsg.appendChild(p);
+  const para = document.createElement('p');
+  para.classList.add('text');
+  para.innerText = message;
+  newMsg.appendChild(para);
+  messages.appendChild(newMsg);
+}

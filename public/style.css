@@ -16,6 +16,50 @@ body {
     place-items: center;
 }
 
+
+
+form {
+    padding: 7px;
+}
+
+input {
+    width: 90%;
+    padding: 13px;
+    margin: 1px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 12px 4px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+button:hover {
+    background-color: steelblue;
+    color: whitesmoke;
+}
+
+ul {
+    padding: 10px;
+}
+
+h4 {
+    padding: 0 0 10px 0;
+}
+li {
+   color: #54b517
+}
+
+p {
+    color: #000000
+}
+
 .join-header {
     color: #ffffff
 }
@@ -76,7 +120,13 @@ body {
 	margin-bottom: 15px;
 	background-color: powderblue;
 	border-radius: 5px;
-	overflow-wrap: break-word;
+    overflow-wrap: break-word;
+    list-style-type: none;
+}
+
+#chat-box-messages .message:nth-child(even) {
+
+	background-color: #f69d3cd1;
 }
 
 #chat-box-messages .message .meta {
@@ -89,42 +139,4 @@ body {
 
 #chat-box-messages .message .meta span {
 	color: #777;
-}
-
-form {
-    padding: 7px;
-}
-
-input {
-    width: 90%;
-    padding: 13px;
-    margin: 1px;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 15px;
-    box-sizing: border-box;
-}
-
-button {
-    padding: 12px 4px;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    box-sizing: border-box;
-}
-
-button:hover {
-    background-color: steelblue;
-    color: whitesmoke;
-}
-
-ul {
-    padding: 10px;
-}
-
-h4 {
-    padding: 0 0 10px 0;
-}
-li {
-   color: #54b517
 }

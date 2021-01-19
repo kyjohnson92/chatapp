@@ -10,6 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^3.0.4"
+    "install": "^0.13.0",
+    "node-pre-gyp": "^0.17.0",
+    "socket.io": "^3.0.4",
+    "sqlite3": "^5.0.1"
   }
 }

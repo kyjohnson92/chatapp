@@ -33,7 +33,7 @@ input {
 }
 
 button {
-    padding: 12px 4px;
+    padding: 12px 6px;
     display: inline-block;
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -68,7 +68,7 @@ p {
 }
 .btn {
     position: relative;
-    left: 11em;
+    left: 9em;
 }
 
 #chatroom-container {

@@ -5,7 +5,7 @@
 
 function formatMessage(text) {
     return {
-      //username,
+      //user,
       text,
       time: timeNow()
     };

@@ -43,7 +43,6 @@ app.get('/chatroom', function(req, res) {
 
 app.post('/register', async (req, res) => {
   try {
-
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
     const data = {
       name: req.body.username,
@@ -51,12 +50,26 @@ app.post('/register', async (req, res) => {
     }
     const sql ='INSERT INTO user (username, password) VALUES (?,?)'
     const params =[data.name, data.password]
-    db.run(sql,params)
-    res.redirect('/')
-  } 
+
+    db.get(`SELECT COUNT(*) FROM user WHERE username =  '${data.name}'`, function(error, row){
+      if (row['COUNT(*)'] == 0){
+        db.run(sql,params)
+        console.log('User created')
+        res.redirect('/')
+      }else{
+        console.log(row['COUNT(*)'])
+        console.log('Username already exists..')
+        res.redirect('/register')
+      }
+      if(error){
+        console.log(error)
+        console.log('Username already exists..')
+        res.redirect('/register')
+      }
+  })}
   catch {
     res.redirect('/register')
-  }
+    }
   })
 
 

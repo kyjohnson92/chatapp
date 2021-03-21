@@ -11,8 +11,8 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
         console.log('Connected to the SQLite database.')
         db.run(`CREATE TABLE user (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username text, 
-            password text 
+            username TEXT NOT NULL UNIQUE, 
+            password TEXT NOT NULL UNIQUE 
             )`,
         (err) => {
             if (err) {

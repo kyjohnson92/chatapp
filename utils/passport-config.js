@@ -5,13 +5,12 @@ const db = require('./database')
 
 function initialize(passport, getUserByEmail, getUserById){
     passport.use(new LocalStrategy(
-    function(username, password, done) {
-        db.get('SELECT username FROM user WHERE username = ?', username, function(err, row) {
+      function(username, password, done) {
+        db.get('SELECT username, id, password FROM user WHERE username = ?', username, async function(err, row) {
             if (!row) return done(null, false, { message: 'Incorrect username.' })
-            db.get('SELECT id, password FROM user WHERE  password = ?', password, function(err, row) {
-                if (!row) return done(null, false, { message: 'Incorrect password.' })
-                return done(null, row);
-            })
+            let pwMatch = await bcrypt.compare(password, row.password)
+             if(!pwMatch) return done(null, false, { message: 'Incorrect password.' })
+                return done(null, row)
         })
     }))
     
@@ -20,9 +19,9 @@ function initialize(passport, getUserByEmail, getUserById){
     })
   
     passport.deserializeUser(function(id, done) {
-    db.get('SELECT id, username FROM users WHERE id = ?', id, function(err, row) {
-      if (!row) return done(null, false);
-      return done(null, row);
+      db.get('SELECT id, username FROM users WHERE id = ?', id, function(err, row) {
+        if (!row) return done(null, false);
+          return done(null, row);
     })
   })
 }

@@ -3,6 +3,9 @@ const path = require('path')
 const app = express()
 const bcrypt = require('bcrypt');
 const passport = require('passport')
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const flash = require('connect-flash');
 const PORT = 3000 || process.env.PORT
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
@@ -19,6 +22,9 @@ initializePassport(
 app.use(passport.initialize())
 app.use(passport.session())
 
+app.use(cookieParser('keyboard cat'));
+app.use(session({ cookie: { maxAge: 60000 }}));
+app.use(flash());
 //app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: false}))
 app.use(express.static(__dirname + '/public'))
@@ -29,9 +35,20 @@ app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
-app.post('/', passport.authenticate('local', { 
-  successRedirect: '/chatroom',    
-  failureRedirect: '/' }));
+app.post('/', function(req,res, next){
+  passport.authenticate('local',function(err, user, info) {
+    console.log(user)
+    if (err) { return next(err); }
+    if (!user) {
+        res.send({err:true, message: info.message}); 
+        return next(null)
+      }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return res.redirect('/chatroom');
+    })
+  })(req, res, next);
+});
 
 app.get('/register', function(req, res) {
   res.sendFile(path.join(__dirname + '/public/register.html'));

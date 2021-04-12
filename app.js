@@ -4,6 +4,7 @@ const app = express()
 const bcrypt = require('bcrypt');
 const passport = require('passport')
 const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session)
 const cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
 const PORT = 3000 || process.env.PORT
@@ -18,13 +19,18 @@ initializePassport(
   username => users.find(user => user.username === username),
   id => users.find(user => user.id === id)
 )
+const sessionMiddleware = session({
+  store: new SQLiteStore,
+  secret: 'shabba',
+  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 1 week
+});
+
+app.use(sessionMiddleware);
+app.use(cookieParser())
+app.use(flash());
 
 app.use(passport.initialize())
 app.use(passport.session())
-
-app.use(cookieParser('keyboard cat'));
-app.use(session({ cookie: { maxAge: 60000 }}));
-app.use(flash());
 //app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: false}))
 app.use(express.static(__dirname + '/public'))
@@ -37,7 +43,7 @@ app.get('/', function(req, res) {
 
 app.post('/', function(req,res, next){
   passport.authenticate('local',function(err, user, info) {
-    console.log(user)
+    //console.log(user)
     if (err) { return next(err); }
     if (!user) {
         res.send({err:true, message: info.message}); 
@@ -45,6 +51,8 @@ app.post('/', function(req,res, next){
       }
     req.logIn(user, function(err) {
       if (err) { return next(err); }
+        //console.log(user.username)
+      
       return res.redirect('/chatroom');
     })
   })(req, res, next);
@@ -56,6 +64,13 @@ app.get('/register', function(req, res) {
 
 app.get('/chatroom', function(req, res) {
   res.sendFile(path.join(__dirname + '/public/chatroom.html'));
+  //console.log(req.user)
+
+  // passport.authorize('local', { failureRedirect: '/' }),
+  // function(req, res) {
+  //   var user = req.user;
+  //   res.sendFile(path.join(__dirname + '/public/chatroom.html'));
+  // }
 });
 
 app.post('/register', async (req, res) => {
@@ -93,9 +108,18 @@ app.post('/register', async (req, res) => {
 
 
 //establish socket connection
-io.on('connection', (socket) => {
+io.use(function(socket, next){
+  // Wrap the express middleware
+  //console.log(socket.request)
+  sessionMiddleware(socket.request, {}, next);
+    })
+.on('connection', (socket) => {
     console.log('a user connected');
-
+    //let userId = socket.request.session.passport.user
+    //console.log("Session: ", socket.session)
+    //console.log(`This is ${userID}`)
+    let session = socket.request.session
+    console.log(session)
     //distribute any user messages to all connected clients
     socket.on('chat message', (msg) => {
       io.emit('message', formatMessage(msg));

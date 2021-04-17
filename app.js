@@ -1,17 +1,17 @@
-const express = require('express')
-const path = require('path')
-const app = express()
-const bcrypt = require('bcrypt');
-const passport = require('passport')
-const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session)
-const cookieParser = require('cookie-parser');
-const flash = require('connect-flash');
-const PORT = 3000 || process.env.PORT
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
-const db = require('./utils/database')
-const formatMessage = require('./utils/utils')
+const express = require('express'),
+      path = require('path'),
+      app = express(),
+      http = require('http').createServer(app),
+      bcrypt = require('bcrypt'),
+      passport = require('passport'),
+      session = require('express-session'),
+      SQLiteStore = require('connect-sqlite3')(session),
+      PORT = 3000 || process.env.PORT,
+      cookieParser = require('cookie-parser'),
+      io = require('socket.io')(http),
+      passportSocketIo = require("passport.socketio"),
+      db = require('./utils/database'),
+      formatMessage = require('./utils/utils')
 
 const initializePassport = require('./utils/passport-config')
 initializePassport(
@@ -19,15 +19,18 @@ initializePassport(
   username => users.find(user => user.username === username),
   id => users.find(user => user.id === id)
 )
-const sessionMiddleware = session({
-  store: new SQLiteStore,
-  secret: 'shabba',
-  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 1 week
-});
-
-app.use(sessionMiddleware);
+const store = new SQLiteStore
+app.use(session({
+  store,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.ENVIRONMENT !== 'development' && process.env.ENVIRONMENT !== 'test',
+    maxAge: 2419200000
+  },
+  secret: 'shabba'
+}));
 app.use(cookieParser())
-app.use(flash());
 
 app.use(passport.initialize())
 app.use(passport.session())
@@ -106,30 +109,27 @@ app.post('/register', async (req, res) => {
 
 
 
-
-//establish socket connection
-io.use(function(socket, next){
-  // Wrap the express middleware
-  //console.log(socket.request)
-  sessionMiddleware(socket.request, {}, next);
-    })
-.on('connection', (socket) => {
+  io.use(passportSocketIo.authorize({
+    key: 'connect.sid',
+    secret: 'shabba',
+    store: store,
+    passport,
+    cookieParser,
+    fail: (one, two , three , four) => {
+      console.log('im failing')
+    }
+  })).on('connection', (socket) => {
     console.log('a user connected');
-    //let userId = socket.request.session.passport.user
-    //console.log("Session: ", socket.session)
-    //console.log(`This is ${userID}`)
-    let session = socket.request.session
-    console.log(session)
+    console.log(socket.request.user)
     //distribute any user messages to all connected clients
     socket.on('chat message', (msg) => {
       io.emit('message', formatMessage(msg));
     });
-
     socket.on('disconnect', () => {
       console.log('a user has disconnected')
     })
   });
-  
+
   
 http.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`)

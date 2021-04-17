@@ -19,7 +19,7 @@ function initialize(passport, getUserByEmail, getUserById){
     })
   
     passport.deserializeUser(function(id, done) {
-      db.get('SELECT id, username FROM users WHERE id = ?', id, function(err, row) {
+      db.get('SELECT id, username FROM user WHERE id = ?', id, function(err, row) {
         if (!row) return done(null, false);
           return done(null, row);
     })

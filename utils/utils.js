@@ -3,9 +3,9 @@
     return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 }
 
-function formatMessage(text) {
+function formatMessage(text, user) {
     return {
-      //user,
+      user,
       text,
       time: timeNow()
     };

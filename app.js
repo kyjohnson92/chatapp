@@ -120,10 +120,10 @@ app.post('/register', async (req, res) => {
     }
   })).on('connection', (socket) => {
     console.log('a user connected');
-    console.log(socket.request.user)
+    const user = socket.request.user.username
     //distribute any user messages to all connected clients
     socket.on('chat message', (msg) => {
-      io.emit('message', formatMessage(msg));
+      io.emit('message', formatMessage(msg, user));
     });
     socket.on('disconnect', () => {
       console.log('a user has disconnected')

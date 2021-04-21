@@ -1,24 +1,21 @@
 const socket = io()
-
 const form = document.getElementById('form');
 const input = document.getElementById('message');
 const messages = document.getElementById('chat-box-messages')
 const chatBox = document.getElementById('chat-box')
 const userList = document.getElementById('user-list')
 
-
+//Update user list upon connection
 socket.on('users' , users => {
     console.log(users)
     updateUserList(users)
-  //Array.from(users).forEach(updateUserList)
-  //updateUserList(user);
 })
+
 //Pull Message from Server
 socket.on('message', message => {
     outputMessage(message)
     chatBox.scrollTop = chatBox.scrollHeight
 })
-
 
 //Capture User Submitted Messages
 form.addEventListener('submit', (e) => {
@@ -29,6 +26,7 @@ form.addEventListener('submit', (e) => {
     }
   });
 
+//output userlist to dom
 const updateUserList = (users) => {
   userList.innerHTML = '';
   users.forEach((user) => {
@@ -40,16 +38,20 @@ const updateUserList = (users) => {
 
 //Formatting new message and output to dom
 const outputMessage = (message) => {
-  const newMsg = document.createElement('li')
+
+  const newMsg = document.createElement('li');
   newMsg.classList.add('message');
-   const p = document.createElement('p');
-   p.classList.add('meta');
-   p.innerText = message.user;
-   p.innerHTML += `<span>  ${message.time}</span>`;
-   newMsg.appendChild(p);
-  const para = document.createElement('p');
-  para.classList.add('text');
-  para.innerText = message.text;
-  newMsg.appendChild(para);
+  const msgInfo = document.createElement('p');
+  const msgText = document.createElement('p');
+  
+  
+  msgInfo.classList.add('meta');
+  msgInfo.innerText = message.user;
+  msgInfo.innerHTML += `<span>  ${message.time}</span>`;
+  newMsg.appendChild(msgInfo);
+  
+  msgText.classList.add('text');
+  msgText.innerText = message.text;
+  newMsg.appendChild(msgText);
   messages.appendChild(newMsg);
 };

@@ -100,7 +100,7 @@ app.post('/register', async (req, res) => {
     }
   })
 
-let userOnlineMap = new Map();
+let userList = [];
 
   io.use(passportSocketIo.authorize({
     key: 'connect.sid',
@@ -113,17 +113,27 @@ let userOnlineMap = new Map();
     }
   })).on('connection', (socket) => {
     console.log('a user connected');
-    let id = socket.request.user.id
+
     let user = socket.request.user.username;
-    userOnlineMap.set(id,user)
-    let userList = Array.from(userOnlineMap.values())
+
+    //object of connected users
+    if(!userList.includes(user)){
+      userList.push(user)}
+
+    //emit list of online users
     io.emit('users', userList );
+
     //distribute any user messages to all connected clients
+
     socket.on('chat message', (msg) => {
       io.emit('message', formatMessage(msg, user));
     });
+
     socket.on('disconnect', () => {
-      console.log('a user has disconnected')
+      console.log('a user has disconnected');
+      let index = userList.findIndex(id => id === user)
+      userList.splice(index, 1)
+      io.emit('users', userList )
     })
   });
 

@@ -67,13 +67,6 @@ app.get('/register', function(req, res) {
 
 app.get('/chatroom', function(req, res) {
   res.sendFile(path.join(__dirname + '/public/chatroom.html'));
-  //console.log(req.user)
-
-  // passport.authorize('local', { failureRedirect: '/' }),
-  // function(req, res) {
-  //   var user = req.user;
-  //   res.sendFile(path.join(__dirname + '/public/chatroom.html'));
-  // }
 });
 
 app.post('/register', async (req, res) => {
@@ -107,7 +100,7 @@ app.post('/register', async (req, res) => {
     }
   })
 
-
+let userOnlineMap = new Map();
 
   io.use(passportSocketIo.authorize({
     key: 'connect.sid',
@@ -120,7 +113,11 @@ app.post('/register', async (req, res) => {
     }
   })).on('connection', (socket) => {
     console.log('a user connected');
-    const user = socket.request.user.username
+    let id = socket.request.user.id
+    let user = socket.request.user.username;
+    userOnlineMap.set(id,user)
+    let userList = Array.from(userOnlineMap.values())
+    io.emit('users', userList );
     //distribute any user messages to all connected clients
     socket.on('chat message', (msg) => {
       io.emit('message', formatMessage(msg, user));

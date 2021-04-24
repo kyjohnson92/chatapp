@@ -7,13 +7,15 @@ const userList = document.getElementById('user-list')
 
 //Update user list upon connection
 socket.on('users' , users => {
-    console.log(users)
     updateUserList(users)
 })
 
+//store user of most recent message
+let currMsgUser = {user: ''};
+
 //Pull Message from Server
 socket.on('message', message => {
-    outputMessage(message)
+    outputMessage(message, currMsgUser)
     chatBox.scrollTop = chatBox.scrollHeight
 })
 
@@ -37,21 +39,29 @@ const updateUserList = (users) => {
 }
 
 //Formatting new message and output to dom
-const outputMessage = (message) => {
-
-  const newMsg = document.createElement('li');
-  newMsg.classList.add('message');
-  const msgInfo = document.createElement('p');
-  const msgText = document.createElement('p');
-  
-  
-  msgInfo.classList.add('meta');
-  msgInfo.innerText = message.user;
-  msgInfo.innerHTML += `<span>  ${message.time}</span>`;
-  newMsg.appendChild(msgInfo);
-  
-  msgText.classList.add('text');
-  msgText.innerText = message.text;
-  newMsg.appendChild(msgText);
-  messages.appendChild(newMsg);
+const outputMessage = (message, msgUser) => {
+  //append message text to previous message if same user 
+  if (message.user === msgUser.user){
+    messages.lastChild.lastElementChild.innerText += `\r\n ${message.text}`;
+  }
+  else {
+    const newMsg = document.createElement('li');
+    newMsg.classList.add('message');
+    const msgInfo = document.createElement('p');
+    const msgText = document.createElement('p');
+    
+    
+    msgInfo.classList.add('meta');
+    msgInfo.innerText = message.user;
+    msgInfo.innerHTML += `<span>  ${message.time}</span>`;
+    newMsg.appendChild(msgInfo);
+    
+    msgText.classList.add('text');
+    msgText.innerText = message.text;
+    newMsg.appendChild(msgText);
+    messages.appendChild(newMsg);
+    
+    //update currMsgUser var with the new user
+    msgUser.user = message.user
+  }
 };

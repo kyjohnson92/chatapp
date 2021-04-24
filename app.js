@@ -100,6 +100,7 @@ app.post('/register', async (req, res) => {
     }
   })
 
+//to store 'online' users
 let userList = [];
 
   io.use(passportSocketIo.authorize({
@@ -131,6 +132,8 @@ let userList = [];
 
     socket.on('disconnect', () => {
       console.log('a user has disconnected');
+
+      //remove user from online user list on disconnect
       let index = userList.findIndex(id => id === user)
       userList.splice(index, 1)
       io.emit('users', userList )
